@@ -7,6 +7,14 @@ const logoBg = '#000000';
 const logoFg = '#AB1C50';
 const logoTxtStyle = '48px arial';
 const logoTxt = 'chiposur';
+const titleBg = '#000000';
+const titleFg = '#4fbcf7';
+const titleTxtStyle = '100px arial';
+const titleTxt = 'Untitled'
+const startTxtStyle = '24px arial';
+const startTxt = 'Start';
+const startTxtColor = '#FFFFFF';
+const startBg = 'gray';
 
 let updateLoop = null;
 let canvas = null;
@@ -33,7 +41,11 @@ function update() {
             state.screen = 'title'
         }
     } else if (state.screen === 'title') {
-        // Draw title screen
+        ctx.save();
+        ctx.fillStyle = titleBg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        drawTitleFg();
     }
     ctx.restore();
 }
@@ -98,4 +110,35 @@ function drawLogoFg() {
     ctx.lineTo(x + textMetrics.width, y);
     ctx.stroke();
     ctx.restore();
+}
+
+function drawTitleFg() {
+        // Game title
+        ctx.save();
+        ctx.fillStyle = titleFg;
+        ctx.font = titleTxtStyle;
+        ctx.textAlign = 'center';
+        x = canvas.width / 2;
+        y = canvas.height / 2 - 40;
+        ctx.fillText(titleTxt, x, y);
+        ctx.restore();
+
+        // Start btn
+        ctx.save();
+        ctx.fillStyle = startBg;
+        ctx.font = startTxtStyle;
+        textMetrics = ctx.measureText(startTxt);
+        padding = 8;
+        x = canvas.width / 2 - textMetrics.width / 2 - padding;
+        y = canvas.height / 2 + 40 - 24;
+        ctx.fillRect(x, y, textMetrics.width + padding * 2, 24 + padding);
+        ctx.restore();
+        ctx.save();
+        ctx.fillStyle = startTxtColor;
+        ctx.font = startTxtStyle;
+        ctx.textAlign = 'center';
+        x = canvas.width / 2;
+        y = canvas.height / 2 + 40;
+        ctx.fillText(startTxt, x, y);
+        ctx.restore();
 }
