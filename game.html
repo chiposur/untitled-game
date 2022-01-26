@@ -3,8 +3,13 @@
 <head>
     <link rel="stylesheet" href="game.css" />
     <script type="text/javascript" src="game.js"></script>
+    <script type="text/javascript">
+        window.onload = () => {
+            start('game');
+        };
+    </script>
 </head>
-<body onload="start('game')">
+<body>
     <canvas id="game" width="640" height="480"></canvas>
 </body>
 </html>
