@@ -65,11 +65,18 @@ function updateStarCoords() {
     for (let i = 0; i < state.stars.length; ++i) {
         const star = state.stars[i];
         star.y += state.starVel.y;
-        if (star.y <= 480) {
+        if (validStarCoord(star.x, star.y)) {
             stars.push(star);
         }
     }
     state.stars = stars;
+}
+
+function validStarCoord(x, y) {
+    return x > 0 - starRadius &&
+        x < 640 + starRadius &&
+        y > 0 - starRadius &&
+        y < 480;
 }
 
 function genStarRow() {
