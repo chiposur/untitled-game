@@ -1,23 +1,28 @@
 // eslint-disable-next-line no-unused-vars
 const untitledGame = (canvasId) => {
+  const titleOps = [
+    'Start',
+    'Settings',
+  ];
   const state = {
     screen: 'logo',
     logoTimeLeftMs: 3000,
+    currTitleOp: titleOps[0],
     stars: [],
     starGenCooldownMs: 0,
     starVel: { x: 0, y: 1 },
   };
   const updateIntervalMs = 20;
   const logoFg = '#AB1C50';
-  const logoTxtStyle = '48px arial';
+  const logoTxtHeight = 48;
+  const logoTxtStyle = `${logoTxtHeight}px arial`;
   const logoTxt = 'chiposur';
   const titleFg = '#4fbcf7';
   const titleTxtStyle = '100px arial';
   const titleTxt = 'Untitled';
-  const startBtnTxtStyle = '24px arial';
-  const startBtnTxt = 'Start';
-  const startBtnTxtColor = 'white';
-  const startBtnBg = 'gray';
+  const titleOpTxtHeight = 24;
+  const titleOpTxtStyle = `${titleOpTxtHeight}px arial`;
+  const titleOpColor = 'yellow';
   const starColor = 'white';
   const starRadius = 1;
 
@@ -134,23 +139,18 @@ const untitledGame = (canvasId) => {
     ctx.fillText(titleTxt, x, y);
     ctx.restore();
 
-    // Start btn
-    ctx.save();
-    ctx.fillStyle = startBtnBg;
-    ctx.font = startBtnTxtStyle;
-    const textMetrics = ctx.measureText(startBtnTxt);
-    const padding = 8;
-    x = canvas.width / 2 - textMetrics.width / 2 - padding;
-    y = canvas.height / 2 + 40 - 24;
-    ctx.fillRect(x, y, textMetrics.width + padding * 2, 24 + padding);
-    ctx.restore();
-    ctx.save();
-    ctx.fillStyle = startBtnTxtColor;
-    ctx.font = startBtnTxtStyle;
-    ctx.textAlign = 'center';
+    // Title options
+    const paddingTop = 8;
     x = canvas.width / 2;
     y = canvas.height / 2 + 40;
-    ctx.fillText(startBtnTxt, x, y);
+    ctx.save();
+    ctx.fillStyle = titleOpColor;
+    ctx.font = titleOpTxtStyle;
+    ctx.textAlign = 'center';
+    for (let i = 0; i < titleOps.length; i += 1) {
+      ctx.fillText(titleOps[i], x, y);
+      y += titleOpTxtHeight + paddingTop;
+    }
     ctx.restore();
   }
 
