@@ -9,7 +9,8 @@ const untitledGame = (canvasId) => {
     logoTimeLeftMs: 3000,
     currTitleOp: titleOps[0],
     stars: [],
-    starGenCooldownMs: 0,
+    starGenCooldownMs: 600,
+    starGenOddRow: false,
     starVel: { x: 0, y: 1 },
   };
   const updateIntervalMs = 20;
@@ -30,16 +31,17 @@ const untitledGame = (canvasId) => {
   let ctx = null;
 
   function validStarCoord(x, y) {
-    return x > 0 - starRadius
+    return x >= -1 * starRadius * 16
           && x < 640 + starRadius
-          && y > 0 - starRadius
-          && y < 480;
+          && y >= 0
+          && y < 480 + starRadius;
   }
 
   function updateStarCoords() {
     const stars = [];
     for (let i = 0; i < state.stars.length; i += 1) {
       const star = state.stars[i];
+      star.x += state.starVel.x;
       star.y += state.starVel.y;
       if (validStarCoord(star.x, star.y)) {
         stars.push(star);
@@ -48,15 +50,33 @@ const untitledGame = (canvasId) => {
     state.stars = stars;
   }
 
-  function genStarRow() {
+  function genStarRow(yStart) {
     // Generate row of stars
     // - Same x diff y
     // - Use randomization to space them out
-    let x = -32;
+    let x = state.starGenOddRow ? 0 : -1 * starRadius * 16;
     while (x <= 640) {
       x += Math.floor(Math.random() * 12 + starRadius * 32);
-      state.stars.push({ x, y: 0 });
+      const y = yStart + Math.floor(Math.random() * 12);
+      state.stars.push({ x, y });
     }
+  }
+
+  function initStarGen() {
+    for (let y = 0; y < 480; y += 27) {
+      genStarRow(y);
+      state.starGenOddRow = !state.starGenOddRow;
+    }
+  }
+
+  function handleStarGen() {
+    updateStarCoords();
+    if (state.starGenCooldownMs <= 0) {
+      genStarRow(0);
+      state.starGenOddRow = !state.starGenOddRow;
+      state.starGenCooldownMs = 600;
+    }
+    state.starGenCooldownMs -= updateIntervalMs;
   }
 
   function drawBlackBg() {
@@ -179,15 +199,6 @@ const untitledGame = (canvasId) => {
     drawStars();
   }
 
-  function handleStarGen() {
-    updateStarCoords();
-    if (state.starGenCooldownMs === 0) {
-      genStarRow();
-      state.starGenCooldownMs = 400;
-    }
-    state.starGenCooldownMs -= updateIntervalMs;
-  }
-
   function update() {
     handleStarGen();
     ctx.save();
@@ -213,6 +224,7 @@ const untitledGame = (canvasId) => {
   function start(id) {
     canvas = document.getElementById(id);
     ctx = canvas.getContext('2d');
+    initStarGen();
     setInterval(update, updateIntervalMs);
   }
 
