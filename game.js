@@ -9,7 +9,7 @@ const untitledGame = (canvasId) => {
   const state = {
     screen: 'logo',
     logoTimeLeftMs: 3000,
-    currTitleOp: titleOps[0],
+    currTitleOpIndex: 0,
     stars: [],
     starGenCooldownMs: 600,
     starGenOddRow: false,
@@ -34,7 +34,7 @@ const untitledGame = (canvasId) => {
 
   function validStarCoord(x, y) {
     return x >= -1 * starRadius * 16
-          && x < 640 + starRadius
+          && x <= 645
           && y >= 0
           && y < 480 + starRadius;
   }
@@ -68,11 +68,10 @@ const untitledGame = (canvasId) => {
       };
     } else if (state.screen === 'game') {
       // Generate column of stars on the rightmost side
-      x = 640;
       y = yStart + (state.starGenOddRow ? 0 : -1 * starRadius * 16);
       condition = () => y <= 480;
       increment = () => {
-        x = 0 + Math.floor(Math.random() * 12);
+        x = 645 - Math.floor(Math.random() * 12);
         y += Math.floor(Math.random() * 12 + starRadius * 32);
       };
     }
@@ -244,10 +243,29 @@ const untitledGame = (canvasId) => {
     ctx.restore();
   }
 
+  function handleTitleKeyDownEvent(key) {
+    const isEnter = key === 13;
+    const currentOp = titleOps[state.currTitleOpIndex];
+    if (isEnter && currentOp === 'Start') {
+      state.screen = 'game';
+    }
+  }
+
+  function captureKeyDownEvents(event) {
+    const key = event.keyCode;
+    switch (state.screen) {
+      case 'title':
+        handleTitleKeyDownEvent(key);
+        break;
+      default: break;
+    }
+  }
+
   function start(id) {
     canvas = document.getElementById(id);
     ctx = canvas.getContext('2d');
     initStarGen();
+    window.addEventListener('keydown', captureKeyDownEvents, false);
     setInterval(update, updateIntervalMs);
   }
 
