@@ -4,6 +4,8 @@ const untitledGame = (canvasId) => {
     'Start',
     'Settings',
   ];
+  const titleStarVel = { x: 0, y: 1 };
+  const gameStarVel = { x: -1, y: 0 };
   const state = {
     screen: 'logo',
     logoTimeLeftMs: 3000,
@@ -11,7 +13,7 @@ const untitledGame = (canvasId) => {
     stars: [],
     starGenCooldownMs: 600,
     starGenOddRow: false,
-    starVel: { x: 0, y: 1 },
+    starVel: titleStarVel,
   };
   const updateIntervalMs = 20;
   const logoFg = '#AB1C50';
@@ -50,21 +52,40 @@ const untitledGame = (canvasId) => {
     state.stars = stars;
   }
 
-  function genStarRow(yStart) {
-    // Generate row of stars
-    // - Same x diff y
-    // - Use randomization to space them out
-    let x = state.starGenOddRow ? 0 : -1 * starRadius * 16;
-    while (x <= 640) {
-      x += Math.floor(Math.random() * 12 + starRadius * 32);
-      const y = yStart + Math.floor(Math.random() * 12);
+  function genIncomingStars(yStart) {
+    let x;
+    let y;
+    let condition;
+    let increment;
+    if (state.screen === 'title' || state.screen === 'logo') {
+      // Generate top row of stars
+      x = state.starGenOddRow ? 0 : -1 * starRadius * 16;
+      y = yStart;
+      condition = () => x <= 640;
+      increment = () => {
+        x += Math.floor(Math.random() * 12 + starRadius * 32);
+        y = yStart + Math.floor(Math.random() * 12);
+      };
+    } else if (state.screen === 'game') {
+      // Generate column of stars on the rightmost side
+      x = 640;
+      y = yStart + (state.starGenOddRow ? 0 : -1 * starRadius * 16);
+      condition = () => y <= 480;
+      increment = () => {
+        x = 0 + Math.floor(Math.random() * 12);
+        y += Math.floor(Math.random() * 12 + starRadius * 32);
+      };
+    }
+
+    while (condition()) {
+      increment();
       state.stars.push({ x, y });
     }
   }
 
   function initStarGen() {
     for (let y = 0; y < 480; y += 27) {
-      genStarRow(y);
+      genIncomingStars(y);
       state.starGenOddRow = !state.starGenOddRow;
     }
   }
@@ -72,7 +93,7 @@ const untitledGame = (canvasId) => {
   function handleStarGen() {
     updateStarCoords();
     if (state.starGenCooldownMs <= 0) {
-      genStarRow(0);
+      genIncomingStars(0);
       state.starGenOddRow = !state.starGenOddRow;
       state.starGenCooldownMs = 600;
     }
@@ -212,9 +233,11 @@ const untitledGame = (canvasId) => {
         state.screen = 'title';
       }
     } else if (state.screen === 'title') {
+      state.starVel = titleStarVel;
       drawSpaceBg();
       drawTitleFg();
     } else if (state.screen === 'game') {
+      state.starVel = gameStarVel;
       drawSpaceBg();
       drawSprites();
     }
