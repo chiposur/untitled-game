@@ -188,6 +188,7 @@ const untitledGame = (canvasId) => {
     ctx.font = titleOpTxtStyle;
     ctx.textAlign = 'center';
     for (let i = 0; i < titleOps.length; i += 1) {
+      ctx.fillStyle = state.currTitleOpIndex === i ? 'red' : titleOpColor;
       ctx.fillText(titleOps[i], x, y);
       y += titleOpTxtHeight + paddingTop;
     }
@@ -219,35 +220,75 @@ const untitledGame = (canvasId) => {
     drawStars();
   }
 
+  function drawLogo() {
+    if (state.logoTimeLeftMs > 0) {
+      drawBlackBg();
+      drawLogoFg();
+      state.logoTimeLeftMs -= updateIntervalMs;
+    } else {
+      state.screen = 'title';
+    }
+  }
+
+  function drawTitle() {
+    state.starVel = titleStarVel;
+    drawSpaceBg();
+    drawTitleFg();
+  }
+
+  function drawGame() {
+    state.starVel = gameStarVel;
+    drawSpaceBg();
+    drawSprites();
+  }
+
+  function drawSettings() {
+    drawBlackBg();
+  }
+
   function update() {
     handleStarGen();
     ctx.save();
     ctx.clearRect(0, 0, 640, 480);
-    if (state.screen === 'logo') {
-      if (state.logoTimeLeftMs > 0) {
-        drawBlackBg();
-        drawLogoFg();
-        state.logoTimeLeftMs -= updateIntervalMs;
-      } else {
-        state.screen = 'title';
-      }
-    } else if (state.screen === 'title') {
-      state.starVel = titleStarVel;
-      drawSpaceBg();
-      drawTitleFg();
-    } else if (state.screen === 'game') {
-      state.starVel = gameStarVel;
-      drawSpaceBg();
-      drawSprites();
+    switch (state.screen) {
+      case 'logo':
+        drawLogo();
+        break;
+      case 'title':
+        drawTitle();
+        break;
+      case 'game':
+        drawGame();
+        break;
+      case 'settings':
+        drawSettings();
+        break;
+      default: break;
     }
     ctx.restore();
   }
 
   function handleTitleKeyDownEvent(key) {
     const isEnter = key === 13;
+    const isUp = key === 38;
+    const isW = key === 87;
+    const isDown = key === 40;
+    const isS = key === 83;
     const currentOp = titleOps[state.currTitleOpIndex];
     if (isEnter && currentOp === 'Start') {
       state.screen = 'game';
+    } else if (isEnter && currentOp === 'Settings') {
+      state.screen = 'settings';
+    } else if (isUp || isW) {
+      state.currTitleOpIndex += 1;
+      if (state.currTitleOpIndex > titleOps.length - 1) {
+        state.currTitleOpIndex = 0;
+      }
+    } else if (isDown || isS) {
+      state.currTitleOpIndex -= 1;
+      if (state.currTitleOpIndex < 0) {
+        state.currTitleOpIndex = titleOps.length - 1;
+      }
     }
   }
 
